@@ -29,5 +29,6 @@ private:
     QAction *openAct;
     QAction *aboutAct;
     QLabel *infoLabel;
+    QTabWidget *tabWidget;
 };
 #endif // MAINWINDOW_H

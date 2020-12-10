@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     QTextEdit *newWidget2 = new QTextEdit();
     newWidget2->setText("Example text 2");
 
-    QTabWidget *tabWidget = new QTabWidget(this);
+    tabWidget = new QTabWidget(this);
     tabWidget->setMovable(true);
     tabWidget->setTabsClosable(true);
     tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -47,6 +47,39 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::open()
 {
     infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+
+    /*QFile* file = new QFile("in.txt");
+    if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    while (!file->atEnd()) {
+        QByteArray line = file->readLine();
+    }*/
+
+    QString path = QFileDialog::getOpenFileName(this, "Open Text File", "C:", tr("Text files (*.txt)"));
+
+    if (!path.isEmpty()){
+
+        QFile file(path);
+
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
+            QTextStream in(&file);
+            QString content;
+
+            while (!in.atEnd()){
+                content.append(in.readLine());
+                content.push_back("\n");
+            }
+
+            QTextEdit* tab = new QTextEdit();
+            tab->setText(content);
+
+            QFileInfo fileInfo(file.fileName());
+            tabWidget->addTab(tab, fileInfo.fileName());
+
+            file.close();
+        }
+    }
 }
 
 void MainWindow::about()
