@@ -48,19 +48,15 @@ void MainWindow::open()
 {
     infoLabel->setText(tr("Invoked <b>File|Open</b>"));
 
-    /*QFile* file = new QFile("in.txt");
-    if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    while (!file->atEnd()) {
-        QByteArray line = file->readLine();
-    }*/
-
+    //open file dialog
     QString path = QFileDialog::getOpenFileName(this, "Open Text File", "C:", tr("Text files (*.txt)"));
 
     if (!path.isEmpty()){
 
+        //open file to read
         QFile file(path);
+        QFileInfo fileInfo(file.fileName());
+        QString openedFileName = fileInfo.fileName();
 
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
             QTextStream in(&file);
@@ -74,10 +70,21 @@ void MainWindow::open()
             QTextEdit* tab = new QTextEdit();
             tab->setText(content);
 
-            QFileInfo fileInfo(file.fileName());
-            tabWidget->addTab(tab, fileInfo.fileName());
+            tabWidget->addTab(tab, openedFileName);
 
             file.close();
+        }
+
+        //write opened file to history file
+        QFile openHistoryFile("history.txt");
+
+        if (openHistoryFile.open(QIODevice::Append | QIODevice::Text)){
+
+            QTextStream out(&openHistoryFile);
+
+            out << file.fileName() << "\n";
+
+            openHistoryFile.close();
         }
     }
 }
