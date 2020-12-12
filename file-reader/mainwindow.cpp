@@ -10,6 +10,7 @@
 #include <QtWidgets>
 #include "mainwindow.h"
 #include "TextWidget.h"
+#include <QtSql>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -83,7 +84,22 @@ void MainWindow::open()
 
             file.close();
         }
-
+        //creating database connection
+        {
+        QSqlDatabase db = QSqlDatabase::addDatabase("QODBC");
+        db.setDatabaseName("Driver={ODBC Driver 17 for SQL Server};Server=(localdb)\\MSSQLLocalDB;Database=FileReader;");
+        db.open();
+        //creating query for adding filepath
+        QSqlQuery query(db);
+        query.prepare("INSERT INTO HistoryFiles (FileName,FilePath) "
+                          "VALUES (:name,:path)");
+        query.bindValue(":path", file.fileName());
+        query.bindValue(":name", fileInfo.fileName());
+        query.exec();
+        db.close();
+        }
+        //closing connection
+        QSqlDatabase::removeDatabase("qt_sql_default_connection");
         //write opened file to history file
         QFile openHistoryFile("history.txt");
 
